@@ -104,9 +104,7 @@ process myProcess {
 
 ### Template for aggregating
 
-Setup to aggregate the results of several executions:
-
-- 
+TODO: document this better
 
 
 ```
@@ -245,21 +243,17 @@ process createPlot {
 }
 ```
     
-## Sketch
+## Misc
 
 
-- to show output add ``echo true``
+- To show output add ``echo true``, useful e.g. in combination with adding ``pwd`` to quickly jump to work folders.
 - Can import java stuff in nextflow: see first response in https://github.com/nextflow-io/nextflow/issues/238
-- Building prototype in experiments/rejfree-nextflow
 - Don't forget ``-resume`` option when running to enable use of cache
-- Use ``set -e`` in bash script to make it crash if one command crashes and don't forget to use ``Experiment.startAutoExit(..)``
+- Use ``set -e`` in bash script to make it crash if one command crashes and don't forget to use ``Experiment.startAutoExit(..)`` if using the inits package
 - note: can use things like ``${Math.pow(dim,refScale)}``
 
-TODO:
 
-- Quick links to latest (via tees)
-- best practice for instrumented run: export '.'
-- echo everything using tees to combine stderr
+TODO:
 - make bins reproducible
     - compiling stuff as tasks not great because of r
     - singularity? 
