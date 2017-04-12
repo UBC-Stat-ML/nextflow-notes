@@ -1,27 +1,14 @@
 # Notes on nextflow
 
-## Sketch
+
+## Setup instructions
+
+1. Clone this repo
+2. Create a file for your experiment, e.g. ``myExperiment.nf`` in the root
+3. Use the recipe below to create your experiment
+4. In the terminal, cd to the root of the repo, and type ``./myExperiment.nf -resume``
 
 
-- to show output add ``echo true``
-- Can import java stuff in nextflow: see first response in https://github.com/nextflow-io/nextflow/issues/238
-- Building prototype in experiments/rejfree-nextflow
-- Don't forget ``-resume`` option when running to enable use of cache
-- Use ``set -e`` in bash script to make it crash if one command crashes and don't forget to use ``Experiment.startAutoExit(..)``
-- note: can use things like ``${Math.pow(dim,refScale)}``
-
-TODO:
-
-- Quick links to latest (via tees)
-- best practice for instrumented run: export '.'
-- echo everything using tees to combine stderr
-- make bins reproducible
-    - compiling stuff as tasks not great because of r
-    - singularity? 
-        - current incubating though..
-        - maybe not workeable on westgrid anyways--so maybe after all the best is to use template, local installs, pack racks
-
-> This then defines the work-flow to some extent… Singularity container images must be built and configured on a host where you have root access (this can be a physical system or on a VM or Docker image). Once the container image has been configured it can be used on a system where you do not have root access as long as Singularity has been installed there.
 
 
 ## Recipe book
@@ -251,3 +238,25 @@ process createPlot {
 }
 ```
     
+## Sketch
+
+
+- to show output add ``echo true``
+- Can import java stuff in nextflow: see first response in https://github.com/nextflow-io/nextflow/issues/238
+- Building prototype in experiments/rejfree-nextflow
+- Don't forget ``-resume`` option when running to enable use of cache
+- Use ``set -e`` in bash script to make it crash if one command crashes and don't forget to use ``Experiment.startAutoExit(..)``
+- note: can use things like ``${Math.pow(dim,refScale)}``
+
+TODO:
+
+- Quick links to latest (via tees)
+- best practice for instrumented run: export '.'
+- echo everything using tees to combine stderr
+- make bins reproducible
+    - compiling stuff as tasks not great because of r
+    - singularity? 
+        - current incubating though..
+        - maybe not workeable on westgrid anyways--so maybe after all the best is to use template, local installs, pack racks
+
+> This then defines the work-flow to some extent… Singularity container images must be built and configured on a host where you have root access (this can be a physical system or on a VM or Docker image). Once the container image has been configured it can be used on a system where you do not have root access as long as Singularity has been installed there.
