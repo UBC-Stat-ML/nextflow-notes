@@ -4,9 +4,10 @@
 ## Setup instructions
 
 1. Clone this repo
-2. Create a file for your experiment, e.g. ``myExperiment.nf`` in the root
-3. Use the recipe below to create your experiment
-4. In the terminal, cd to the root of the repo, and type ``./myExperiment.nf -resume``
+2. Install nextflow and make sure it's in your PATH variable
+3. Create a file for your experiment, e.g. ``myExperiment.nf`` in the root
+4. Use the recipe below to create your experiment
+5. In the terminal, cd to the root of the repo, and type ``./myExperiment.nf -resume``
 
 
 
@@ -43,7 +44,7 @@ process summarizePipeline {
 
 ### Build code
 
-Assumes ``./gradlew installDist`` can be ran from the repo to build it.
+Assumes ``./gradlew installDist`` can be ran from the repo to build it (to do it, ``run gradle wrapper --gradle-version 2.14`` and commit the resulting files).
 
 ```
 process buildCode {
@@ -64,7 +65,7 @@ process buildCode {
 }
 ```
 
-Can also use ``buildSnapshot.sh`` instead of ``buildRepo.sh`` to do quick testing before commit.
+Can also use ``buildSnapshot.sh`` instead of ``buildRepo.sh`` to do quick testing before commit. Make sure to set ``cache false`` if you use the snapshot mode.
 
 ### Run the code
 
@@ -87,6 +88,7 @@ process run {
 }
 ```
 
+
 ### Ranges: 
 - ``each seed from 1..5``
 - following does now work directly ``(0..10).collect{Math.pow(2.0, it)}`` but workaround is:
@@ -101,6 +103,11 @@ process myProcess {
 ```
 
 ### Template for aggregating
+
+Setup to aggregate the results of several executions:
+
+- 
+
 
 ```
 process analysisCode {
