@@ -327,6 +327,15 @@ process createPlot {
   """
 }
 ```
+
+### Several nodes consuming same output (e.g. code, generated data)
+
+```
+data.into {
+  data1
+  data2
+}
+```
     
 ## Misc
 
