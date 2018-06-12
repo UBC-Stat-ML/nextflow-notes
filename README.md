@@ -182,7 +182,8 @@ process run {
 vars = (0..10).collect{Math.pow(2.0, it)}
     
 process myProcess {
-    each var in vars
+  input:
+    each myvar from vars
     ...
 }
 ```
