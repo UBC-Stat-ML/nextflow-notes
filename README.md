@@ -92,6 +92,7 @@ process run {
 
 
 ### Ranges: 
+
 - ``each seed from 1..5``
 - following does now work directly ``(0..10).collect{Math.pow(2.0, it)}`` but workaround is:
     
@@ -107,46 +108,28 @@ process myProcess {
 
 ### Template for aggregating
 
-TODO: document this better
-
-
 ```
 process analysisCode {
-
-  cache true
-  
   input:
-    val gitRepoName from 'rejfreeAnalysis'
+    val gitRepoName from 'nedry'
     val gitUser from 'alexandrebouchard'
-    val codeRevision from '573413bcecb3018e3372b1009b739806cd7e4c7a'
-    val snapshotPath from '/Users/bouchard/w/rejfreeAnalysis'
-  
+    val codeRevision from 'cf1a17574f19f22c4caf6878669df921df27c868'
+    val snapshotPath from "${System.getProperty('user.home')}/w/nedry"
   output:
     file 'code' into analysisCode
-
   script:
     template 'buildRepo.sh'
 }
 
 process aggregate {
-
   input:
     file analysisCode
-    file 'exec_*' from execFolders.toList()
-    
-  output:
-    file aggregated
-  
+    file 'exec_*' from execFolder.toList()
   """
-  ./code/bin/csv-aggregate \
-    --experimentConfigs.managedExecutionFolder false \
-    --experimentConfigs.saveStandardStreams false \
-    --experimentConfigs.recordExecutionInfo false \
-    --argumentFileName arguments.tsv \
-    --argumentsKeys XXXXX  \
-    --dataPathInEachExecFolder XXXXX
+  code/bin/aggregate \
+    --dataPathInEachExecFolder OUTPUT.csv \
+    --keys CMD_ARG from arguments.tsv
   """
-
 }
 ```
     
