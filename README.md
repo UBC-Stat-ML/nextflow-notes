@@ -126,7 +126,7 @@ process aggregate {
     file analysisCode
     file 'exec_*' from execFolder.toList()
   output:
-    file output into aggregated
+    file 'results/latest/aggregated' into aggregated
   """
   code/bin/aggregate \
     --dataPathInEachExecFolder OUTPUT.csv \
