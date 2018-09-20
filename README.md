@@ -113,7 +113,7 @@ process analysisCode {
   input:
     val gitRepoName from 'nedry'
     val gitUser from 'alexandrebouchard'
-    val codeRevision from 'cf1a17574f19f22c4caf6878669df921df27c868'
+    val codeRevision from '4c6ddf0de0027ad88d73ef6634d1e70cc9f94bfe'
     val snapshotPath from "${System.getProperty('user.home')}/w/nedry"
   output:
     file 'code' into analysisCode
@@ -125,6 +125,8 @@ process aggregate {
   input:
     file analysisCode
     file 'exec_*' from execFolder.toList()
+  output:
+    file output into aggregated
   """
   code/bin/aggregate \
     --dataPathInEachExecFolder OUTPUT.csv \
