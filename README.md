@@ -36,9 +36,9 @@ Based on this graph, nextflow will do the following:
 To run on Sockeye:
 
 - A Sockeye account
-- Setup your Sockeye account so that you can push/pull from github without password (**TODO**: can someone add a link to instructions for doing this)
+- Setup your Sockeye account so that you can push/pull from github without password ([see github doc](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent))
 - To make things easier, set-up also a department VM (email help@stat)
-- Setup password less SSH to the department VM (**TODO**: can someone add a link to instructions for doing this), which you can keep as semi-permanent bridge to Sockeye via ``screen`` to avoid the annoying 2FA
+- Setup password less SSH to the department VM (google: passwordless ssh), which you can keep as semi-permanent bridge to Sockeye via ``screen`` to avoid the annoying 2FA
 
 
 
@@ -134,7 +134,7 @@ cd nextflow-notes
 ./nextflow-sockeye.sh run full.nf -resume | bin/nf-monitor --open false
 ```
 
-- After you are done, when you are doing your own scripts in a separate repo, one way to get back the results is to commit the deliverables folder. For convenience I included a script for doing this:
+- After you are done, when you are doing your own scripts in a separate repo, one way to get back the results is to commit the deliverables folder. For convenience I included a script for doing this (don't run the command to avoid this repo's history getting cluttered)
 
 ```
 ./commit-deliverables.sh
@@ -146,3 +146,5 @@ cd nextflow-notes
 - If you want to cancel a run, type "control c" **only once**. Nextflow will take care of killing submitted subprocesses for you (if you do "control c" more than once, a hard kill, nextflow will not be able to cancel already submitted jobs). To kill manually subprocesses or see stats use `qstat` and read [the Sockeye documentation](https://confluence.it.ubc.ca/display/UARC/UBC+ARC+Technical+User+Documentation).
 
 - By default, nextflow does not show the standard out (you can change this by adding ``echo true`` as a process attribute). To inspect the std out/err, cd to the directory of the process and you can access the std out/err by looking at the files `.command.out` and `.command.err`. 
+
+- Add any tips or tricks here!
