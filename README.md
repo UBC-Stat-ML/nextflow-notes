@@ -1,260 +1,134 @@
 # Notes on nextflow
 
 
-## Setup instructions
 
-1. Clone this repo
-2. Install nextflow and make sure it's in your PATH variable
-3. Create a file for your experiment, e.g. ``myExperiment.nf`` in the root
-4. Use the recipe below to create your experiment
-5. In the terminal, cd to the root of the repo, and type ``./myExperiment.nf -resume``
+## Overview
 
+**Motivations:** testing computational stat methodology requires 1000s of computer experiments. This takes a lot of time, for two reasons:
+(1) preparing, debugging and organizing all these runs, and (2), waiting that experiments finish running. 
 
+Scientific workflow systems help decrease both (1) and (2). From personal experience by a factor of 10 or more. 
 
+[Nextflow](https://www.nextflow.io/) is a well documented and scalable scientific workflow system. It is heavily used in the bioinformatics community. This tutorial is more tailored to its use in computational statistics. It is self-contained but if you want later on to read more about nextflow, the documentation is [here](https://www.nextflow.io/docs/latest/index.html).
 
-## Recipe book
+**High-level idea** behind nextflow and other scientific workflow systems:
 
-### Skeleton
+- You organize your computation as a directed acyclic graph (DAG). 
+- Each node is a computer program. You can mix and match languages, e.g. one node in bash, one in R, etc. 
+- An edge from node x to node y encodes that node y needs a file that is output by node x. 
 
-```
-#!/usr/bin/env nextflow
+Based on this graph, nextflow will do the following:
 
-deliverableDir = 'deliverables/' + workflow.scriptName.replace('.nf','')
+- Execute the nodes in the correct order and with as much parallelization as possible.
+- Each node runs its own fresh directory, with symlinks to its inputs  (symlink = symbolic link, i.e. file pointing to another one). 
+- If you change only a subset of nodes, nextflow can re-run only those that changed plus the ones downstream.
+- Same workflow can be used on your laptop and the cluster (e.g. this one designed for UBC's Sockeye cluster). In the latter case, nextflow takes care of all the batch submission details.
+- Helps setup common experimental design patterns, e.g. full factorial designs ran in parallel. 
+- Simplified replication, adding one line of code takes care of running a node in a docker/singularity container. 
 
-// stuff to do
+## Prerequisites
 
-process summarizePipeline {
+- Do **not** install nextflow, instead just clone this repo which has one with the version we will use built-in.
+- Unix (mac, linux, wsl, etc)
+- Java 11 (use [sdk man](https://sdkman.io/) to make sure you use exactly this version; Java recently got worse at backward compatibility)
+- We will use R for some of the examples
 
-  cache false
-  
-  output:
-      file 'pipeline-info.txt'
-      
-  publishDir deliverableDir, mode: 'copy', overwrite: true
-  
-  """
-  echo 'scriptName: $workflow.scriptName' >> pipeline-info.txt
-  echo 'start: $workflow.start' >> pipeline-info.txt
-  echo 'runName: $workflow.runName' >> pipeline-info.txt
-  echo 'nextflow.version: $workflow.nextflow.version' >> pipeline-info.txt
-  """
+To run on Sockeye:
 
-}
-```
-
-### Build code
-
-Assumes ``./gradlew installDist`` can be ran from the repo to build it (to do it, ``run gradle wrapper --gradle-version 2.14`` and commit the resulting files).
-
-```
-process buildCode {
-
-  cache true
-  
-  input:
-    val gitRepoName from 'rejectfree'
-    val gitUser from 'alexandrebouchard'
-    val codeRevision from 'XXXXX'
-    val snapshotPath from '/Users/bouchard/w/rejectfree'
-  
-  output:
-    file 'code' into code
-
-  script:
-    template 'buildRepo.sh' 
-}
-```
-
-Can also use ``buildSnapshot.sh`` instead of ``buildRepo.sh`` to do quick testing before commit. Make sure to set ``cache false`` if you use the snapshot mode.
+- A Sockeye account
+- Setup your Sockeye account so that you can push/pull from github without password (**TODO**: can someone add a link to instructions for doing this)
+- To make things easier, set-up also a department VM (email help@stat)
+- Setup password less SSH to the department VM (**TODO**: can someone add a link to instructions for doing this), which you can keep as semi-permanent bridge to Sockeye via ``screen`` to avoid the annoying 2FA
 
 
 
-### Run the code
+## Running a nextflow workflow locally
+
+### Minimalistic example
+
+Let us start with a simple example: ``minimal.nf``. To run it, go to the root of this repo and use:
 
 ```
-process run {
-
-  echo true
-
-  input:
-    file code
-        
-  output:
-    file '.' into execFolder
-    
-  """
-  java -cp code/lib/\\* -Xmx2g XXXXX.Main  \
-     --experimentConfigs.saveStandardStreams false \
-     --experimentConfigs.managedExecutionFolder false 
-  """
-}
+./nextflow run minimal.nf -resume | bin/nf-monitor
 ```
 
+Explanations:
 
-### Ranges: 
+- Look at the code. Each `process` block defines an edge. The part between `"""`s is the code to run (internally, it uses bash, unix's lowest common dominator as a substrate, the first line with `#!` is bash's syntax to specify an interpreter/language for a file. But beyond that you do not need to learn bash!)
+- The DAG here has two types of node: `myPreprocessor` and `myCode`
+- `myStream` is the name of the edge passing a file from `myPreprocessor` into `myCode` via a symlink
+- `-resume` means that if you run the command again, it will only redo what changed. Test it! E.g. add a comment in either of the two processes to see what get reran.
+- `| bin/nf-monitor` is a utility I wrote to help locate the different temporary folders created for you (they are also accessible in `work/...` based on the prefix identifier of the form `[60/53997c]` available in the nextflow output, use tab to complete the prefix)
 
-- ``each seed from 1..5``
-- following does now work directly ``(0..10).collect{Math.pow(2.0, it)}`` but workaround is:
-    
-```
-vars = (0..10).collect{Math.pow(2.0, it)}
-    
-process myProcess {
-  input:
-    each myvar from vars
-    ...
-}
-```
 
-### Template for aggregating
+### Full example
+
+Look now at `full.nf` for a full example including many real world aspects of large simulations (dry-run, compilation of code, use of data, full factorials designs, cluster configuration, docker/singularity container settings). 
+
+To run in 'dry run' mode (i.e. doing a small subset of the computation for quick debugging):
 
 ```
-process analysisCode {
-  input:
-    val gitRepoName from 'nedry'
-    val gitUser from 'alexandrebouchard'
-    val codeRevision from '4c6ddf0de0027ad88d73ef6634d1e70cc9f94bfe'
-    val snapshotPath from "${System.getProperty('user.home')}/w/nedry"
-  output:
-    file 'code' into analysisCode
-  script:
-    template 'buildRepo.sh'
-}
-
-process aggregate {
-  input:
-    file analysisCode
-    file 'exec_*' from execFolder.toList()
-  output:
-    file 'results/latest/aggregated' into aggregated
-  """
-  code/bin/aggregate \
-    --dataPathInEachExecFolder OUTPUT.csv \
-    --keys CMD_ARG from arguments.tsv
-  """
-}
-```
-    
-### Template for plotting
-
-```
-process createPlot {
-
-  echo true
-
-  input:
-    file aggregated
-    env SPARK_HOME from "${System.getProperty('user.home')}/bin/spark-2.1.0-bin-hadoop2.7"
-    
-   output:
-    file 'times.pdf'
-
-  publishDir deliverableDir, mode: 'copy', overwrite: true
-  
-  afterScript 'rm -r metastore_db; rm derby.log'
-    
-  """
-  #!/usr/bin/env Rscript
-  require("ggplot2")
-  library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
-  sparkR.session(master = "local[*]", sparkConfig = list(spark.driver.memory = "4g"))
-  
-  data <- read.df("$aggregated", "csv", header="true", inferSchema="true")
-  data <- collect(data)
-
-  p <- ggplot(data, aes(x = nUpdatedVariables, y = wallClockTimeMillis, colour = model.precision.size)) +
-    geom_point() +
-    scale_x_log10() +
-    facet_grid(. ~ model.useLocal) +
-    scale_y_log10()  
-  ggsave("times.pdf", p, width = 10, height = 5, limitsize = FALSE)
-  """
-}
+./nextflow run full.nf -resume --dryRun | bin/nf-monitor
 ```
 
-### Several plots for different output files on same run
+Explanations:
+
+- key output can be accessed in `deliverables/full`
+- see `full.nf` which contains detailed comments
+- to run the full pipeline, omit the `--dryRun` argument
+
+
+
+## Running a nextflow workflow on Sockeye
+
+### Develop the script locally, push to github
+
+- Use this repo as a basis to get all the properly configured files. 
+- Use a `dryRun` option to quickly iterate. 
+
+### Start the Sockeye execution
+
+We will to setup Java on Sockeye. 
+
+- Follow these instructions:
+```
+cd ~
+mkdir bin
+cd bin
+cp /home/alexbou/jdk11.zip .
+unzip jdk11.zip
+```
+- Add `~/bin/jdk-11.0.10+9/bin/` to your PATH
+- exit
+
+The following will avoid you having to constantly do 2FA:
+
+- Login to a stable server accessible with password-less access
+- Open a screen 
 
 ```
-process aggregate {
-
-  input:
-    file analysisCode
-    file 'exec_*' from execFolders.toList()
-    each resultFile from 'ess', 'summaryStatistics'
-    
-  output:
-    set val(resultFile), file('aggregated') into aggregated
-  
-  """
-  ./code/bin/csv-aggregate \
-    --experimentConfigs.managedExecutionFolder false \
-    --experimentConfigs.saveStandardStreams false \
-    --experimentConfigs.recordExecutionInfo false \
-    --argumentFileName arguments.tsv \
-    --argumentsKeys XXXXX  \
-    --dataPathInEachExecFolder ${resultFile}.csv
-  """
-}
-
-process createPlot {
-
-  input:
-    set val(resultFile), file('aggregated') from aggregated
-    env SPARK_HOME from "${System.getProperty('user.home')}/bin/spark-2.1.0-bin-hadoop2.7"
-    
-   output:
-    file "${resultFile}.pdf"  
-
-  publishDir deliverableDir, mode: 'copy', overwrite: true
-  
-  afterScript 'rm -r metastore_db; rm derby.log'
-    
-  """
-  #!/usr/bin/env Rscript
-  require("ggplot2")
-  library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
-  sparkR.session(master = "local[*]", sparkConfig = list(spark.driver.memory = "4g"))
-  
-  data <- read.df("aggregated", "csv", header="true", inferSchema="true")
-  data <- collect(data)
-
-  if (identical("$resultFile","ess")) {
-    XXXXX
-  } else if (identical("$resultFile", "summaryStatistics")) {
-    XXXXX
-  } else {
-    stop("resultFile not recognized")
-  }
-    
-  ggsave("${resultFile}.pdf", p, width = 20, height = 5, limitsize = FALSE)
-  """
-}
+screen
 ```
 
-### Several nodes consuming same output (e.g. code, generated data)
+- Alternatively, to reattach use (I use detach-reattach in case there is a stale connection)
 
 ```
-data.into {
-  data1
-  data2
-}
+screen -dr 
 ```
-    
-## Misc
 
+- One you are in a screen, ssh into Sockeye
+- In Sockeye, create a symlink to where you will be cloning this repo, then clone and go there
 
-- To show output add ``echo true``, useful e.g. in combination with adding ``pwd`` to quickly jump to work folders.
-- Can import java stuff in nextflow: see first response in https://github.com/nextflow-io/nextflow/issues/238
-- Don't forget ``-resume`` option when running to enable use of cache
-- Use ``set -e`` in bash script to make it crash if one command crashes and don't forget to use ``Experiment.startAutoExit(..)`` if using the inits package
-- note: can use things like ``${Math.pow(dim,refScale)}``
+```
+cd ~
+ln -s /scratch/st-alexbou-1/ st-alexbou-1
+cd st-alexbou-1
+git clone git@github.com:alexandrebouchard/nextflow-notes.git
+cd nextflow-notes
+```
+- We can now start the script
 
+```
+./nextflow-sockeye.sh run full.nf -resume 
+```
 
-TODO:
-- make bins reproducible
-    - compiling stuff as tasks not great because of r
-    - singularity? 
-        - current incubating though..
-        - maybe not workeable on westgrid anyways--so maybe after all the best is to use template, local installs, pack racks
-
-> This then defines the work-flow to some extent… Singularity container images must be built and configured on a host where you have root access (this can be a physical system or on a VM or Docker image). Once the container image has been configured it can be used on a system where you do not have root access as long as Singularity has been installed there.

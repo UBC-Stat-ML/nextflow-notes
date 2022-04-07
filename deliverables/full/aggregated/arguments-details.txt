@@ -1,0 +1,34 @@
+  --dataPathInEachExecFolder actualTemperedRestarts.csv swapSummaries.csv    # <List>
+#   description: Comma separated value (cvs or csv.gz) file(s) in each exec containing the data to be aggregated.
+
+# --execFoldersPrefix <String> (default value: exec_)
+#   description: Prefix of the directories, each containing stored command line arguments stored in tab separated values as well data in csv format.
+
+# --experimentConfigs.configFile <File> (optional)
+#   description: If set, use those arguments in provided file that do not appear in the provided arguments.
+
+# --experimentConfigs.description <String> (optional)
+#   description: Documentation for this run.
+
+# --experimentConfigs.managedExecutionFolder <boolean> (default value: true)
+#   description: Automatically organize results into subdirectories of 'results/all'?
+
+# --experimentConfigs.maxIndentationToPrint <int> (default value: inf)
+#   description: Use -1 to silence all output done through blang.System.*
+
+# --experimentConfigs.recordExecutionInfo <boolean> (default value: true)
+#   description: Record information such as timing, main class, code version, etc for this run?
+
+# --experimentConfigs.recordGitInfo <boolean> (default value: false)
+
+  --experimentConfigs.resultsHTMLPage false    # <boolean> (default value: true)
+
+# --experimentConfigs.saveStandardStreams <boolean> (default value: true)
+#   description: Save combined standard out and err into a file?
+
+# --experimentConfigs.tabularWriter <TabularWriterFactory: CSV|Spark|fully qualified> (default value: CSV)
+
+# --experimentConfigs.tabularWriter.compressed <boolean> (default value: false)
+
+  --keys engine.nChains as nChains engine.reversible as reversible engine.random as random from arguments.tsv    # <String>
+#   description: Command line arguments stored in tab separated values for each exec. Syntax: comma separated list of (<key> [as <transformed-key>] )* from [optional] <tsv-file-in-each-exec>
