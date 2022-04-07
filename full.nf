@@ -1,7 +1,7 @@
 // Use this to collect final results, e.g. plots and master csv files
 deliverableDir = 'deliverables/' + workflow.scriptName.replace('.nf','')
 
-// Use this for data (or for large dataset, use process that downloads the data)
+// Use this for data (or for large dataset, use a process that downloads the data)
 data = file("data")
 
 // build java code from a repo
@@ -22,16 +22,16 @@ process buildBlangDemoCode {
 nChains_levels = (2..4).collect{Math.pow(2, it)} // 2^2, 2^3, 2^4
 seeds = (1..5)
 
-// parameters can be passed in, e.g. for a "dry run" -- use params. prefix
+// parameters can be passed in, e.g. for a "dry run"
 params.dryRun = false
 
-// if we do a dry run, use less 
+// if we do a dry run, set parameters so that everything runs quickly
 if (params.dryRun) {
   nChains_levels = nChains_levels.subList(0, 1)
   seeds = seeds.subList(0, 1)
 }
 
-// run different experiment
+// run experiments
 process runBlang {
   // will be required for cluster execution:
   time '2m'  
@@ -49,9 +49,9 @@ process runBlang {
     file 'output' into results
     
   """
-  java -Xmx5g -cp code/lib/\\* texting.ChangePoint \
+  java -Xmx5g -cp ${code}/lib/\\* texting.ChangePoint \
     --experimentConfigs.resultsHTMLPage false \
-    --model.counts file data/texting-data.csv \
+    --model.counts file ${data}/texting-data.csv \
     --engine.reversible $reversible \
     --engine.nChains $nChains \
     --engine.random $seed \
@@ -64,7 +64,7 @@ process runBlang {
   """
 }
 
-// Merge many csv files padding relevant experimental configs
+// Merge many csv files while padding relevant experimental configs as new columns in the merged csv
 process aggregate {
   time '1m'
   echo false
@@ -76,6 +76,7 @@ process aggregate {
   """
   aggregate \
     --experimentConfigs.resultsHTMLPage false \
+    --experimentConfigs.tabularWriter.compressed true \
     --dataPathInEachExecFolder actualTemperedRestarts.csv swapSummaries.csv \
     --keys \
       engine.nChains as nChains \
@@ -88,10 +89,10 @@ process aggregate {
 
 process plot {
   // cluster settings
-  scratch false  // we don't want these on local machine storage, i.e. we want it to be available from login node
+  scratch false  // we don't want these on the individual nodes' machine storage, i.e. we want it to be available from the login node
   container 'cgrlab/tidyverse'   // we will need tidyverse, so run this in a singularity container
   
-  // the output of this script is what we are ultimately interested in, so export it to a subfolder of 'deliverables/'
+  // the output of this script is what we are ultimately interested in, so copy into deliverable/[name of script]
   publishDir deliverableDir, mode: 'copy', overwrite: true
    
   input:
@@ -99,23 +100,22 @@ process plot {
   output:
     file '*.*'
     file 'aggregated'   // include the csv files into deliverableDir
-    file '.command.sh'  // include this to be able to tweak plots later on
-  afterScript 'rm Rplots.pdf'  // clean up after R
+  afterScript 'rm Rplots.pdf; cp .command.sh rerun.sh'  // clean up after R, include script to rerun R code from CSVs
   """
   #!/usr/bin/env Rscript
   require("ggplot2")
   require("dplyr")
   
-  restarts <- read.csv("${aggregated}/actualTemperedRestarts.csv")
+  restarts <- read.csv("${aggregated}/actualTemperedRestarts.csv.gz")
   restarts %>%
     filter(round == 8) %>%
     group_by(reversible, nChains) %>%
     summarise(mean_count = mean(count)) %>%
     ggplot(aes(x = nChains, y = mean_count, colour = reversible)) +
-    scale_x_log10() +
-    ylab("Average number of tempered restarts") + 
-    geom_line()  + 
-    theme_bw()
+      scale_x_log10() +
+      ylab("Average number of tempered restarts") + 
+      geom_line()  + 
+      theme_bw()
   ggsave(paste0("restarts.pdf"), width = 5, height = 5)
   """
   

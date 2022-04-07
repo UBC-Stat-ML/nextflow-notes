@@ -28,7 +28,7 @@
 
 # --experimentConfigs.tabularWriter <TabularWriterFactory: CSV|Spark|fully qualified> (default value: CSV)
 
-# --experimentConfigs.tabularWriter.compressed <boolean> (default value: false)
+  --experimentConfigs.tabularWriter.compressed true    # <boolean> (default value: false)
 
   --keys engine.nChains as nChains engine.reversible as reversible engine.random as random from arguments.tsv    # <String>
 #   description: Command line arguments stored in tab separated values for each exec. Syntax: comma separated list of (<key> [as <transformed-key>] )* from [optional] <tsv-file-in-each-exec>

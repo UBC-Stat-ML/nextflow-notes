@@ -83,14 +83,15 @@ Explanations:
 
 ### Develop the script locally, push to github
 
-- Use this repo as a basis to get all the properly configured files. 
+- Fork this repo as a basis to get all the required config files. 
 - Use a `dryRun` option to quickly iterate. 
 
 ### Start the Sockeye execution
 
-We will to setup Java on Sockeye. 
+We will need to setup Java on Sockeye. 
 
 - Follow these instructions:
+
 ```
 cd ~
 mkdir bin
@@ -98,8 +99,9 @@ cd bin
 cp /home/alexbou/jdk11.zip .
 unzip jdk11.zip
 ```
+
 - Add `~/bin/jdk-11.0.10+9/bin/` to your PATH
-- exit
+- exit or reload bash
 
 The following will avoid you having to constantly do 2FA:
 
@@ -110,33 +112,37 @@ The following will avoid you having to constantly do 2FA:
 screen
 ```
 
-- Alternatively, to reattach use (I use detach-reattach in case there is a stale connection)
+- Alternatively, to reattach an existing screen, use:
 
 ```
 screen -dr 
 ```
 
 - One you are in a screen, ssh into Sockeye
-- In Sockeye, create a symlink to where you will be cloning this repo, then clone and go there
+- In Sockeye, follow the instructions below to create a symlink to where you will be cloning this repo (a specific location in the file system where read and write will be much faster than your home folder; warning, not backed up but as you will see, part of the process will include a kind of back up in github), then clone and go there
 
 ```
 cd ~
 ln -s /scratch/st-alexbou-1/ st-alexbou-1
 cd st-alexbou-1
-git clone git@github.com:alexandrebouchard/nextflow-notes.git
+git clone git@github.com:UBC-Stat-ML/nextflow-notes.git
 cd nextflow-notes
 ```
-- We can now start the script
+- We can now start the script (ignore "failed to retrieve queue status" messages)
 
 ```
-./nextflow-sockeye.sh run full.nf -resume 
+./nextflow-sockeye.sh run full.nf -resume | bin/nf-monitor --open false
 ```
 
-- After you are done, one way to get back the results is to commit the deliverables folder
+- After you are done, when you are doing your own scripts in a separate repo, one way to get back the results is to commit the deliverables folder. For convenience I included a script for doing this:
 
 ```
-git add deliverables/*
-git commit
-[i, then commit message, then shift-:, wq]
-git push 
+./commit-deliverables.sh
 ```
+
+
+## Misc
+
+- If you want to cancel a run, type "control c" **only once**. Nextflow will take care of killing submitted subprocesses for you (if you do "control c" more than once, a hard kill, nextflow will not be able to cancel already submitted jobs). To kill manually subprocesses or see stats use `qstat` and read [the Sockeye documentation](https://confluence.it.ubc.ca/display/UARC/UBC+ARC+Technical+User+Documentation).
+
+- By default, nextflow does not show the standard out (you can change this by adding ``echo true`` as a process attribute). To inspect the std out/err, cd to the directory of the process and you can access the std out/err by looking at the files `.command.out` and `.command.err`. 

@@ -9,5 +9,5 @@ experimentConfigs.recordExecutionInfo	true
 experimentConfigs.configFile	<optional>
 experimentConfigs.description	<optional>
 experimentConfigs.maxIndentationToPrint	inf
-experimentConfigs.tabularWriter.compressed	false
+experimentConfigs.tabularWriter.compressed	true
 experimentConfigs.tabularWriter	CSV
