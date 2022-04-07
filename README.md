@@ -132,3 +132,11 @@ cd nextflow-notes
 ./nextflow-sockeye.sh run full.nf -resume 
 ```
 
+- After you are done, one way to get back the results is to commit the deliverables folder
+
+```
+git add deliverables/*
+git commit
+[i, then commit message, then shift-:, wq]
+git push 
+```
