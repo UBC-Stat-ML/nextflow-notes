@@ -147,4 +147,4 @@ cd nextflow-notes
 
 - By default, nextflow does not show the standard out (you can change this by adding ``echo true`` as a process attribute). To inspect the std out/err, cd to the directory of the process and you can access the std out/err by looking at the files `.command.out` and `.command.err`. 
 
-- Add any tips or tricks here!
+- Add any tips or tricks here! (PS: anyone knows how to compose singularity containers directly on the Sockeye cluster, i.e. without having to do it on the laptop?)
