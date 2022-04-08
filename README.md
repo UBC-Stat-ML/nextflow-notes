@@ -22,24 +22,23 @@ Based on this graph, nextflow will do the following:
 - Execute the nodes in the correct order and with as much parallelization as possible.
 - Each node runs its own fresh directory, with symlinks to its inputs  (symlink = symbolic link, i.e. file pointing to another one). 
 - If you change only a subset of nodes, nextflow can re-run only those that changed plus the ones downstream.
-- Same workflow can be used on your laptop and the cluster (e.g. this one designed for UBC's Sockeye cluster). In the latter case, nextflow takes care of all the batch submission details.
+- Same workflow can be used on your laptop and the cluster (e.g. this tutorial tailored for UBC's Sockeye cluster but same principles apply for systems based on PBS, SGE, and many more). When doing cloud execution, nextflow takes care of all the batch submission details.
 - Helps setup common experimental design patterns, e.g. full factorial designs ran in parallel. 
 - Simplified replication, adding one line of code takes care of running a node in a docker/singularity container. 
 
 ## Prerequisites
 
-- Do **not** install nextflow, instead just clone this repo which has one with the version we will use built-in.
+- No need to install nextflow, instead just clone this repo which includes the specific nextflow version we will need.
 - Unix (mac, linux, wsl, etc)
-- Java 11 (use [sdk man](https://sdkman.io/) to make sure you use exactly this version; Java recently got worse at backward compatibility)
+- Java **11** (use [sdk man](https://sdkman.io/) to make sure you use exactly version 11, not higher, not lower; Java recently got worse at cross version compatibility)
 - We will use R for some of the examples
 
-To run on Sockeye:
+To run on the Sockeye cluster:
 
 - A Sockeye account
 - Setup your Sockeye account so that you can push/pull from github without password ([see github doc](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent))
 - To make things easier, set-up also a department VM (email help@stat)
-- Setup password less SSH to the department VM (google: passwordless ssh), which you can keep as semi-permanent bridge to Sockeye via ``screen`` to avoid the annoying 2FA
-
+- Setup password less SSH to the department VM (google: passwordless ssh), which will use use a as semi-permanent bridge to Sockeye via ``screen`` to avoid the annoying 2FA
 
 
 ## Running a nextflow workflow locally
@@ -54,11 +53,11 @@ Let us start with a simple example: ``minimal.nf``. To run it, go to the root of
 
 Explanations:
 
-- Look at the code. Each `process` block defines an edge. The part between `"""`s is the code to run (internally, it uses bash, unix's lowest common dominator as a substrate, the first line with `#!` is bash's syntax to specify an interpreter/language for a file. But beyond that you do not need to learn bash!)
+- Look at the code. Each `process` block defines a type of vertex in the DAG. The part between `"""`s is the code to run (internally, it uses bash, unix's lowest common dominator, as a substrate, the first line with `#!` is bash's syntax to specify an interpreter/language for a file. But beyond that you do not need to learn bash!)
 - The DAG here has two types of node: `myPreprocessor` and `myCode`
 - `myStream` is the name of the edge passing a file from `myPreprocessor` into `myCode` via a symlink
-- `-resume` means that if you run the command again, it will only redo what changed. Test it! E.g. add a comment in either of the two processes to see what get reran.
-- `| bin/nf-monitor` is a utility I wrote to help locate the different temporary folders created for you (they are also accessible in `work/...` based on the prefix identifier of the form `[60/53997c]` available in the nextflow output, use tab to complete the prefix)
+- `-resume` means that if you run the command again, it will only redo what changed, plus processes downstream. Test it! E.g. add a space in either of the two processes to see what get reran.
+- `| bin/nf-monitor` calls a utility I wrote to help locate the different temporary folders created by nextflow (they are also accessible in `work/...` based on the prefix identifier of the form `[60/53997c]` available in the nextflow output, use tab to complete the prefix)
 
 
 ### Full example
@@ -85,6 +84,7 @@ Explanations:
 
 - Fork this repo as a basis to get all the required config files. 
 - Use a `dryRun` option to quickly iterate. 
+- When you are done, push to github
 
 ### Start the Sockeye execution
 
@@ -106,7 +106,7 @@ unzip jdk11.zip
 The following will avoid you having to constantly do 2FA:
 
 - Login to a stable server accessible with password-less access
-- Open a screen 
+- Open a [screen](https://en.wikipedia.org/wiki/GNU_Screen) (screen is your best friend, well worth learning the basics)
 
 ```
 screen
@@ -118,8 +118,8 @@ screen
 screen -dr 
 ```
 
-- One you are in a screen, ssh into Sockeye
-- In Sockeye, follow the instructions below to create a symlink to where you will be cloning this repo (a specific location in the file system where read and write will be much faster than your home folder; warning, not backed up but as you will see, part of the process will include a kind of back up in github), then clone and go there
+- Once you are in a screen, ssh into Sockeye
+- In Sockeye, follow the instructions below to create a symlink to where you will be cloning this repo (a specific location in the file system where read and write will be much faster than your home folder; shared across my allocation, so create a subfolder; warning, not backed up but as you will see, part of the process will include a kind of back up in github), then clone and go there
 
 ```
 cd ~
@@ -134,7 +134,7 @@ cd nextflow-notes
 ./nextflow-sockeye.sh run full.nf -resume | bin/nf-monitor --open false
 ```
 
-- After you are done, when you are doing your own scripts in a separate repo, one way to get back the results is to commit the deliverables folder. For convenience I included a script for doing this (don't run the command to avoid this repo's history getting cluttered)
+- After you are done, when you are doing your own scripts in a separate repo, one way to get back the results is to commit the deliverables folder. For convenience I included a script for doing this (don't run the command unless you are on a fork, to avoid this repo's history getting cluttered)
 
 ```
 ./commit-deliverables.sh
@@ -143,7 +143,7 @@ cd nextflow-notes
 
 ## Misc
 
-- If you want to cancel a run, type "control c" **only once**. Nextflow will take care of killing submitted subprocesses for you (if you do "control c" more than once, a hard kill, nextflow will not be able to cancel already submitted jobs). To kill manually subprocesses or see stats use `qstat` and read [the Sockeye documentation](https://confluence.it.ubc.ca/display/UARC/UBC+ARC+Technical+User+Documentation).
+- If you want to cancel a run, type "control c" **only once**. Nextflow will take care of killing submitted subprocesses for you (if you do "control c" more than once, a hard kill, nextflow will not be able to cancel already submitted jobs). To kill manually subprocesses or see job statistics use `qstat` and `qdel` and read [the Sockeye documentation](https://confluence.it.ubc.ca/display/UARC/UBC+ARC+Technical+User+Documentation).
 
 - By default, nextflow does not show the standard out (you can change this by adding ``echo true`` as a process attribute). To inspect the std out/err, cd to the directory of the process and you can access the std out/err by looking at the files `.command.out` and `.command.err`. 
 
