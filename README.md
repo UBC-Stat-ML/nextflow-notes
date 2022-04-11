@@ -30,15 +30,15 @@ Based on this graph, nextflow will do the following:
 
 - No need to install nextflow, instead just clone this repo which includes the specific nextflow version we will need.
 - Unix (mac, linux, wsl, etc)
-- Java **11** (use [sdk man](https://sdkman.io/) to make sure you use exactly version 11, not higher, not lower; Java recently got worse at cross version compatibility)
-- We will use R for some of the examples
+- Java **11** (check with `java -version`; use [sdk man](https://sdkman.io/) to make sure you use exactly version 11, not higher, not lower; Java recently got worse at cross version compatibility)
+- We will use R for some of the examples (check with `Rscript`)
 
 To run on the Sockeye cluster:
 
-- A Sockeye account
+- A Sockeye account (or any pbspro-based cluster, other cluster architectures supported but scripts would have to be tweaked)
 - Setup your Sockeye account so that you can push/pull from github without password ([see github doc](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent))
-- To make things easier, set-up also a department VM (email help@stat)
-- Setup password less SSH to the department VM (google: passwordless ssh), which will use use a as semi-permanent bridge to Sockeye via ``screen`` to avoid the annoying 2FA
+- To make things easier, set-up also a department VM (email help@stat; will use use a as semi-permanent bridge to Sockeye via ``screen`` to avoid the annoying 2FA)
+- Setup password less SSH to the department VM (google: passwordless ssh)
 
 
 ## Running a nextflow workflow locally
@@ -48,6 +48,8 @@ To run on the Sockeye cluster:
 Let us start with a simple example: ``minimal.nf``. To run it, go to the root of this repo and use:
 
 ```
+git clone https://github.com/UBC-Stat-ML/nextflow-notes.git
+cd nextflow-notes
 ./nextflow run minimal.nf -resume | bin/nf-monitor
 ```
 
@@ -148,3 +150,5 @@ cd nextflow-notes
 - By default, nextflow does not show the standard out (you can change this by adding ``echo true`` as a process attribute). To inspect the std out/err, cd to the directory of the process and you can access the std out/err by looking at the files `.command.out` and `.command.err`. 
 
 - Add any tips or tricks here! (PS: anyone knows how to compose singularity containers directly on the Sockeye cluster, i.e. without having to do it on the laptop?)
+
+TODO: add error when (1) not running latest code; or (2) forgot to git pull; force a command line switch to still go ahead [or transition to HEAD + documenting commit hash.. for #1] --- probably a good idea to keep read-only copy of script too
