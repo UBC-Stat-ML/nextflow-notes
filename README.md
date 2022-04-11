@@ -37,8 +37,38 @@ To run on the Sockeye cluster:
 
 - A Sockeye account (or any pbspro-based cluster, other cluster architectures supported but scripts would have to be tweaked)
 - Setup your Sockeye account so that you can push/pull from github without password ([see github doc](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent))
-- To make things easier, set-up also a department VM (email help@stat; will use use a as semi-permanent bridge to Sockeye via ``screen`` to avoid the annoying 2FA)
-- Setup password less SSH to the department VM (google: passwordless ssh)
+
+### SSH'ing to Sockeye through stat.ubc.ca
+
+To make things easier, we will use a semi-permanent bridge to Sockeye via ``screen`` to avoid the annoying 2FA.
+
+1. create an SSH key pair (optional, if you don't have one already)
+    - See [this tutorial](https://docs.rightscale.com/faq/How_Do_I_Generate_My_Own_SSH_Key_Pair.html)
+    - I'll assume your public key is in `~/.ssh/id_rsa.pub`.
+2. add UBC Stat to your SSH `config` file
+    - create the file and put the right permissions (if you already have the file, skip this)
+```bash
+cd ~/.ssh
+touch config
+chmod 600  
+```
+Edit the `config` file and add the lines
+```
+Host ubcstat
+    HostName stat.ubc.ca
+    User [YOUR-UBC-STAT-USERNAME]
+    KexAlgorithms +diffie-hellman-group1-sha1
+```
+3. copy your public key to the server
+    - `scp ~/.ssh/id_rsa.pub ubcstat:~` (it will ask for your UBC stat password)
+4. login to ubcstat
+    - `ssh ubcstat` (it will ask for your UBC stat password)
+    - after logging in, type
+        - `cat id_rsa.pub >> .ssh/authorized_key`
+        - `chmod 700 .ssh/authorized_keys`
+        - `exit`
+5. finally re-connect to stat.ubc to check that it uses your key instead of password
+    - `ssh ubcstat` (should **not** ask for password)
 
 
 ## Running a nextflow workflow locally
