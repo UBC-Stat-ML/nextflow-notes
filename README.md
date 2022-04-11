@@ -108,7 +108,7 @@ unzip jdk11.zip
 The following will avoid you having to constantly do 2FA:
 
 - Login to a stable server accessible with password-less access
-- Open a [screen](https://en.wikipedia.org/wiki/GNU_Screen) (screen is your best friend, well worth learning the basics)
+- Open a [screen](https://en.wikipedia.org/wiki/GNU_Screen) (screen is your best friend for server-side simulation, well worth learning the basics)
 
 ```
 screen
@@ -127,6 +127,8 @@ screen -dr
 cd ~
 ln -s /scratch/st-alexbou-1/ st-alexbou-1
 cd st-alexbou-1
+mkdir myUserName
+cd myUserName
 git clone git@github.com:UBC-Stat-ML/nextflow-notes.git
 cd nextflow-notes
 ```
@@ -136,10 +138,11 @@ cd nextflow-notes
 ./nextflow-sockeye.sh run full.nf -resume | bin/nf-monitor --open false
 ```
 
-- After you are done, when you are doing your own scripts in a separate repo, one way to get back the results is to commit the deliverables folder. For convenience I included a script for doing this (don't run the command unless you are on a fork, to avoid this repo's history getting cluttered)
+- After you are done, when you are doing your own scripts in a separate repo, one way to get back the results is to commit the deliverables folder. For convenience I included a script for doing this 
 
 ```
-./commit-deliverables.sh
+(don't actually run the command below unless you are on a fork, to avoid this repo's history getting cluttered)
+./commit-deliverables.sh 
 ```
 
 
@@ -151,4 +154,4 @@ cd nextflow-notes
 
 - Add any tips or tricks here! (PS: anyone knows how to compose singularity containers directly on the Sockeye cluster, i.e. without having to do it on the laptop?)
 
-TODO: add error when (1) not running latest code; or (2) forgot to git pull; force a command line switch to still go ahead [or transition to HEAD + documenting commit hash.. for #1] --- probably a good idea to keep read-only copy of script too
+TODO/note to self: add error when (1) not running latest code; or (2) forgot to git pull; force a command line switch to still go ahead [or transition to HEAD + documenting commit hash.. for #1] --- probably a good idea to keep read-only copy of script too
