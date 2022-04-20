@@ -1,0 +1,50 @@
+digraph "dag" {
+p0 [shape=point,label="",fixedsize=true,width=0.1];
+p4 [label="buildBlangDemoCode"];
+p0 -> p4 [label="gitRepoName"];
+
+p1 [shape=point,label="",fixedsize=true,width=0.1];
+p4 [label="buildBlangDemoCode"];
+p1 -> p4 [label="gitUser"];
+
+p2 [shape=point,label="",fixedsize=true,width=0.1];
+p4 [label="buildBlangDemoCode"];
+p2 -> p4 [label="codeRevision"];
+
+p3 [shape=point,label="",fixedsize=true,width=0.1];
+p4 [label="buildBlangDemoCode"];
+p3 -> p4 [label="snapshotPath"];
+
+p4 [label="buildBlangDemoCode"];
+p9 [label="runBlang"];
+p4 -> p9 [label="code"];
+
+p5 [shape=point,label="",fixedsize=true,width=0.1];
+p9 [label="runBlang"];
+p5 -> p9;
+
+p6 [shape=point,label="",fixedsize=true,width=0.1];
+p9 [label="runBlang"];
+p6 -> p9;
+
+p7 [shape=point,label="",fixedsize=true,width=0.1];
+p9 [label="runBlang"];
+p7 -> p9;
+
+p8 [shape=point,label="",fixedsize=true,width=0.1];
+p9 [label="runBlang"];
+p8 -> p9 [label="data"];
+
+p9 [label="runBlang"];
+p10 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="toList"];
+p9 -> p10 [label="results"];
+
+p10 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="toList"];
+p11 [label="aggregate"];
+p10 -> p11;
+
+p11 [label="aggregate"];
+p12 [label="plot"];
+p11 -> p12 [label="aggregated"];
+
+}
