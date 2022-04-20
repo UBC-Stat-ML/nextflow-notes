@@ -1,0 +1,10 @@
+name: custom-conda-env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - r
+dependencies:
+  - r-ggplot2
+  - r-dplyr
+  - openjdk=11.0.13

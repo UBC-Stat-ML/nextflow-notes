@@ -49,6 +49,7 @@ process runBlang {
     file 'output' into results
     
   """
+  which java
   java -Xmx5g -cp ${code}/lib/\\* texting.ChangePoint \
     --experimentConfigs.resultsHTMLPage false \
     --model.counts file ${data}/texting-data.csv \
@@ -90,7 +91,6 @@ process aggregate {
 process plot {
   // cluster settings
   scratch false  // we don't want these on the individual nodes' machine storage, i.e. we want it to be available from the login node
-  container 'cgrlab/tidyverse'   // we will need tidyverse, so run this in a singularity container
   
   // the output of this script is what we are ultimately interested in, so copy into deliverable/[name of script]
   publishDir deliverableDir, mode: 'copy', overwrite: true
@@ -116,7 +116,7 @@ process plot {
       ylab("Average number of tempered restarts") + 
       geom_line()  + 
       theme_bw()
-  ggsave(paste0("restarts.pdf"), width = 5, height = 5)
+  ggsave("restarts.pdf", width = 5, height = 5)
   """
   
 }
