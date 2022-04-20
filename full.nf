@@ -49,7 +49,6 @@ process runBlang {
     file 'output' into results
     
   """
-  which java
   java -Xmx5g -cp ${code}/lib/\\* texting.ChangePoint \
     --experimentConfigs.resultsHTMLPage false \
     --model.counts file ${data}/texting-data.csv \
