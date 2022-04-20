@@ -12,4 +12,4 @@ restarts %>%
     ylab("Average number of tempered restarts") + 
     geom_line()  + 
     theme_bw()
-ggsave(paste0("restarts.pdf"), width = 5, height = 5)
+ggsave("restarts.pdf", width = 5, height = 5)
