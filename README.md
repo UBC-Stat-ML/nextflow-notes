@@ -38,24 +38,6 @@ To run on the Sockeye cluster:
 - A Sockeye account (or any pbspro-based cluster, other cluster architectures supported but scripts would have to be tweaked)
 - Setup your Sockeye account so that you can push/pull from github without password ([see github doc](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent))
 
-### ssh'ing to Sockeye through a VM
-
-To make things easier, we will use a semi-permanent bridge to Sockeye using a Virtual Machine (VM) and the `screen` command to avoid the annoying 2FA.
-
-1. check you have access to the VM
-    - `ssh [STAT-ID]@r8-bouchard1.stat.ubc.ca`
-    - where [STAT-ID] is your UBC Stats ID 
-    - it will ask for your UBC stat password
-    - type `exit` to leave
-2. in your computer, create an SSH key pair (optional, if you don't have one already)
-    - See [this tutorial](https://docs.rightscale.com/faq/How_Do_I_Generate_My_Own_SSH_Key_Pair.html)
-    - I'll assume your public key is in `~/.ssh/id_rsa.pub`.
-3. copy your public key to the server
-    - `ssh-copy-id -i ~/.ssh/id_rsa.pub [STAT-ID]@r8-bouchard1.stat.ubc.ca` (it will ask for your UBC stat password)
-4. re-connect to check that it uses your key instead of password
-    - `ssh [STAT-ID]@r8-bouchard1.stat.ubc.ca` (should **not** ask for password)
-5. you should now be able to connect to sockeye within a `screen` session in the VM
-
 
 ## Running a nextflow workflow locally
 
