@@ -1,8 +1,11 @@
-```bash
+```
+Warning: command open returned non-zero code (1). Output so far:
+Couldn't get a file descriptor referring to the console
+
 N E X T F L O W  ~  version 18.10.1
-Launching `minimal.nf` [curious_boyd] - revision: 248b7b09fe
+Launching `minimal.nf` [boring_wing] - revision: 248b7b09fe
 [warm up] executor > local
-[a1/1ccda3] Submitted process > myPreprocessor
+[81/f6af66] Submitted process > myPreprocessor
 ERROR ~ Error executing process > 'myPreprocessor'
 
 Caused by:
@@ -26,7 +29,7 @@ Command error:
   /usr/bin/env: Rscript: No such file or directory
 
 Work dir:
-  /scratch/st-singha53-1/tliang19/work_dir/tmp/nextflow-notes-1/work/a1/1ccda30f9d7e89a39a2536558544f2
+  /scratch/st-singha53-1/tliang19/work_dir/tmp/nextflow-notes-1/work/81/f6af66d64089d9ae068740166cb5c0
 
 Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
 
